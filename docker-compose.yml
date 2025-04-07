@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  mkcert-web:
+    image: mkcert-web              # ← 使用你已打好的镜像名
+    container_name: mkcert-web
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./certs:/app/certs
+      - ./templates:/app/templates
+      - ./mkcert-ca:/root/.local/share/mkcert   # ← 挂载根证书目录
+    restart: unless-stopped
+
