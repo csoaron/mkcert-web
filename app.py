@@ -1,14 +1,13 @@
-import os
 import shutil
-from fastapi import FastAPI, Form, UploadFile, Request
+from pathlib import Path
+from subprocess import run
+
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from subprocess import run
-from pathlib import Path
-from cryptography import x509
-from cryptography.hazmat.backends import default_backend
-
 
 app = FastAPI()
 
@@ -52,7 +51,6 @@ def index(request: Request):
     })
 
 
-
 @app.get("/ca/rootCA.pem")
 def get_root_ca():
     if ROOT_CA_PATH.exists():
@@ -62,9 +60,9 @@ def get_root_ca():
 
 @app.post("/create")
 def create_cert(
-    domain: str = Form(...),
-    alt_names: str = Form(""),
-    remark: str = Form("")
+        domain: str = Form(...),
+        alt_names: str = Form(""),
+        remark: str = Form("")
 ):
     domain = domain.strip()
     san_list = [domain] + [d.strip() for d in alt_names.split(",") if d.strip()]
@@ -82,6 +80,7 @@ def create_cert(
             f.write(remark.strip())
 
     return RedirectResponse(url="/", status_code=303)
+
 
 @app.post("/delete")
 def delete_cert(domain: str = Form(...)):
@@ -102,4 +101,3 @@ def get_cert_info(cert_path: Path):
         }
     except Exception:
         return {"not_before": "未知", "not_after": "未知"}
-
