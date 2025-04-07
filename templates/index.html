@@ -33,22 +33,41 @@
     <h2 class="text-xl font-semibold mb-2">已生成证书</h2>
     <div class="space-y-4">
       {% for cert in certs %}
-        <div class="bg-white p-4 rounded shadow flex items-center justify-between">
-          <div>
-            <p class="font-semibold">{{ cert.domain }}</p>
-            <div class="text-sm text-gray-500">
-              <a href="{{ cert.cert }}" class="underline" download>下载证书</a> |
-              <a href="{{ cert.key }}" class="underline" download>下载私钥</a>
+        <div class="space-y-4">
+          {% for cert in certs %}
+            <div class="bg-white p-4 rounded shadow flex items-center justify-between">
+              <div>
+                <p class="font-semibold text-lg">{{ cert.domain }}</p>
+
+                <div class="flex space-x-2 mt-2">
+                  <a href="{{ cert.cert }}" download>
+                    <button type="button" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                      下载证书
+                    </button>
+                  </a>
+                  <a href="{{ cert.key }}" download>
+                    <button type="button" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                      下载私钥
+                    </button>
+                  </a>
+                </div>
+
+                <div class="text-sm text-gray-500 mt-2">
+                  <div>创建时间：{{ cert.not_before }}</div>
+                  <div>过期时间：{{ cert.not_after }}</div>
+                </div>
+              </div>
+
+              <form action="/delete" method="post">
+                <input type="hidden" name="domain" value="{{ cert.domain }}">
+                <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                  删除
+                </button>
+              </form>
             </div>
-            <div class="text-sm text-gray-500">
-              <div>创建时间：{{ cert.not_before }}</div>
-              <div>过期时间：{{ cert.not_after }}</div>
-            </div>
-          </div>
-          <form action="/delete" method="post">
-            <input type="hidden" name="domain" value="{{ cert.domain }}">
-            <button class="bg-red-500 text-white px-3 py-1 rounded">删除</button>
-          </form>
+          {% else %}
+            <p class="text-gray-500">暂无证书</p>
+          {% endfor %}
         </div>
       {% else %}
         <p class="text-gray-500">暂无证书</p>
