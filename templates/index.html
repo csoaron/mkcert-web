@@ -27,6 +27,10 @@
         <label class="block text-sm font-medium">备用域名（逗号分隔）</label>
         <input type="text" name="alt_names" placeholder="www.example.com,api.example.com" class="w-full border p-2 rounded">
       </div>
+      <div class="mb-2">
+        <label class="block text-sm font-medium">备注（可选）</label>
+        <input type="text" name="remark" placeholder="用于标记证书用途等" class="w-full border p-2 rounded">
+      </div>
       <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">生成证书</button>
     </form>
 
@@ -55,6 +59,9 @@
                 <div class="text-sm text-gray-500 mt-2">
                   <div>创建时间：{{ cert.not_before }}</div>
                   <div>过期时间：{{ cert.not_after }}</div>
+                    {% if cert.remark %}
+                        <div class="mt-1 italic">备注：{{ cert.remark }}</div>
+                    {% endif %}
                 </div>
               </div>
 

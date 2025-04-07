@@ -32,14 +32,17 @@ def index(request: Request):
             domain = item.name
             cert_path = item / f"{domain}.pem"
             key_path = item / f"{domain}-key.pem"
+            remark_path = item / "remark.txt"
             if cert_path.exists() and key_path.exists():
                 info = get_cert_info(cert_path)
+                remark = remark_path.read_text(encoding="utf-8").strip() if remark_path.exists() else ""
                 certs.append({
                     "domain": domain,
                     "cert": f"/certs/{domain}/{domain}.pem",
                     "key": f"/certs/{domain}/{domain}-key.pem",
                     "not_before": info["not_before"],
-                    "not_after": info["not_after"]
+                    "not_after": info["not_after"],
+                    "remark": remark
                 })
     root_ca_exists = ROOT_CA_PATH.exists()
     return templates.TemplateResponse("index.html", {
@@ -58,17 +61,27 @@ def get_root_ca():
 
 
 @app.post("/create")
-def create_cert(domain: str = Form(...), alt_names: str = Form("")):
+def create_cert(
+    domain: str = Form(...),
+    alt_names: str = Form(""),
+    remark: str = Form("")
+):
     domain = domain.strip()
     san_list = [domain] + [d.strip() for d in alt_names.split(",") if d.strip()]
     output_dir = CERTS_DIR / domain
     if output_dir.exists():
         shutil.rmtree(output_dir)
     output_dir.mkdir(parents=True)
+
     # 创建证书
     run(["mkcert", "-cert-file", f"{domain}.pem", "-key-file", f"{domain}-key.pem"] + san_list, cwd=output_dir)
-    return RedirectResponse(url="/", status_code=303)
 
+    # 保存备注（可选）
+    if remark.strip():
+        with open(output_dir / "remark.txt", "w", encoding="utf-8") as f:
+            f.write(remark.strip())
+
+    return RedirectResponse(url="/", status_code=303)
 
 @app.post("/delete")
 def delete_cert(domain: str = Form(...)):
