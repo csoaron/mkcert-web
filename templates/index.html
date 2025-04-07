@@ -19,68 +19,65 @@
     {% endif %}
 
     <form action="/create" method="post" class="bg-white p-4 rounded shadow mb-6">
-        <div class="mb-2">
-            <label class="block text-sm font-medium">主域名</label>
-            <input type="text" name="domain" required placeholder="example.com" class="w-full border p-2 rounded">
-        </div>
-        <div class="mb-2">
-            <label class="block text-sm font-medium">备用域名（逗号分隔）</label>
-            <input type="text" name="alt_names" placeholder="www.example.com,api.example.com"
-                   class="w-full border p-2 rounded">
-        </div>
-        <div class="mb-2">
-            <label class="block text-sm font-medium">备注（可选）</label>
-            <input type="text" name="remark" placeholder="用于标记证书用途等" class="w-full border p-2 rounded">
-        </div>
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">生成证书</button>
+      <div class="mb-2">
+        <label class="block text-sm font-medium">主域名</label>
+        <input type="text" name="domain" required placeholder="example.com" class="w-full border p-2 rounded">
+      </div>
+      <div class="mb-2">
+        <label class="block text-sm font-medium">备用域名（逗号分隔）</label>
+        <input type="text" name="alt_names" placeholder="www.example.com,api.example.com" class="w-full border p-2 rounded">
+      </div>
+      <div class="mb-2">
+        <label class="block text-sm font-medium">备注（可选）</label>
+        <input type="text" name="remark" placeholder="用于标记证书用途等" class="w-full border p-2 rounded">
+      </div>
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">生成证书</button>
     </form>
 
     <h2 class="text-xl font-semibold mb-2">已生成证书</h2>
-    <div class="space-y-4">
-        {% for cert in certs %}
+
+        <div class="space-y-4">
+          {% for cert in certs %}
             <div class="bg-white p-4 rounded shadow flex items-center justify-between">
-                <div>
-                    <p class="font-semibold text-lg">{{ cert.domain }}</p>
+              <div>
+                <p class="font-semibold text-lg">{{ cert.domain }}</p>
 
-                    <div class="flex space-x-2 mt-2">
-                        <a href="{{ cert.cert }}" download>
-                            <button type="button"
-                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
-                                下载证书
-                            </button>
-                        </a>
-                        <a href="{{ cert.key }}" download>
-                            <button type="button"
-                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
-                                下载私钥
-                            </button>
-                        </a>
-                    </div>
-
-                    <div class="text-sm text-gray-500 mt-2">
-                        <div>创建时间：{{ cert.not_before }}</div>
-                        <div>过期时间：{{ cert.not_after }}</div>
-                        {% if cert.remark %}
-                            <div class="mt-1 italic">备注：{{ cert.remark }}</div>
-                        {% endif %}
-                    </div>
+                <div class="flex space-x-2 mt-2">
+                  <a href="{{ cert.cert }}" download>
+                    <button type="button" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                      下载证书
+                    </button>
+                  </a>
+                  <a href="{{ cert.key }}" download>
+                    <button type="button" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                      下载私钥
+                    </button>
+                  </a>
                 </div>
 
-                <form action="/delete" method="post">
-                    <input type="hidden" name="domain" value="{{ cert.domain }}">
-                    <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
-                        删除
-                    </button>
-                </form>
+                <div class="text-sm text-gray-500 mt-2">
+                  <div>创建时间：{{ cert.not_before }}</div>
+                  <div>过期时间：{{ cert.not_after }}</div>
+                    {% if cert.remark %}
+                        <div class="mt-1 italic">备注：{{ cert.remark }}</div>
+                    {% endif %}
+                </div>
+              </div>
+
+              <form action="/delete" method="post">
+                <input type="hidden" name="domain" value="{{ cert.domain }}">
+                <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                  删除
+                </button>
+              </form>
             </div>
-        {% else %}
+          {% else %}
             <p class="text-gray-500">暂无证书</p>
-        {% endfor %}
-    </div>
-    {% else %}
-    <p class="text-gray-500">暂无证书</p>
-    {% endfor %}
-</div>
+          {% endfor %}
+        </div>
+
+
+  </div>
 </body>
 </html>
 
