@@ -6,6 +6,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from subprocess import run
 from pathlib import Path
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+
 
 app = FastAPI()
 
@@ -30,10 +33,13 @@ def index(request: Request):
             cert_path = item / f"{domain}.pem"
             key_path = item / f"{domain}-key.pem"
             if cert_path.exists() and key_path.exists():
+                info = get_cert_info(cert_path)
                 certs.append({
                     "domain": domain,
                     "cert": f"/certs/{domain}/{domain}.pem",
-                    "key": f"/certs/{domain}/{domain}-key.pem"
+                    "key": f"/certs/{domain}/{domain}-key.pem",
+                    "not_before": info["not_before"],
+                    "not_after": info["not_after"]
                 })
     root_ca_exists = ROOT_CA_PATH.exists()
     return templates.TemplateResponse("index.html", {
@@ -41,6 +47,7 @@ def index(request: Request):
         "certs": certs,
         "root_ca_url": "/ca/rootCA.pem" if root_ca_exists else None
     })
+
 
 
 @app.get("/ca/rootCA.pem")
@@ -69,3 +76,17 @@ def delete_cert(domain: str = Form(...)):
     if folder.exists():
         shutil.rmtree(folder)
     return RedirectResponse(url="/", status_code=303)
+
+
+def get_cert_info(cert_path: Path):
+    try:
+        with open(cert_path, "rb") as f:
+            cert_data = f.read()
+        cert = x509.load_pem_x509_certificate(cert_data, default_backend())
+        return {
+            "not_before": cert.not_valid_before.strftime("%Y-%m-%d %H:%M:%S"),
+            "not_after": cert.not_valid_after.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+    except Exception:
+        return {"not_before": "未知", "not_after": "未知"}
+

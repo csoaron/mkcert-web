@@ -40,6 +40,10 @@
               <a href="{{ cert.cert }}" class="underline" download>下载证书</a> |
               <a href="{{ cert.key }}" class="underline" download>下载私钥</a>
             </div>
+            <div class="text-sm text-gray-500">
+              <div>创建时间：{{ cert.not_before }}</div>
+              <div>过期时间：{{ cert.not_after }}</div>
+            </div>
           </div>
           <form action="/delete" method="post">
             <input type="hidden" name="domain" value="{{ cert.domain }}">
