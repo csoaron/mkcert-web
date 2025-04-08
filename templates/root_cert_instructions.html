@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>根证书使用说明</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>根证书使用说明</h1>
+    <p>以下是各系统根证书安装位置及安装方式：</p>
+
+    <h2>总览</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>系统</th>
+                <th>安装方式 / 放置路径</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Windows</strong></td>
+                <td>自动安装到系统信任库（mkcert 会调用 <code>certutil</code>）<br>手动：MMC 控制台或 <code>certutil</code></td>
+            </tr>
+            <tr>
+                <td><strong>CentOS</strong></td>
+                <td><code>/etc/pki/ca-trust/source/anchors/</code> → <code>update-ca-trust</code></td>
+            </tr>
+            <tr>
+                <td><strong>Ubuntu</strong></td>
+                <td><code>/usr/local/share/ca-certificates/</code>（需 <code>.crt</code> 扩展） → <code>update-ca-certificates</code></td>
+            </tr>
+            <tr>
+                <td><strong>Arch / Manjaro</strong></td>
+                <td><code>/etc/ca-certificates/trust-source/anchors/</code> → <code>trust extract-compat</code></td>
+            </tr>
+            <tr>
+                <td><strong>macOS</strong></td>
+                <td>自动安装到“系统钥匙串”或“登录钥匙串”<br>手动：钥匙串访问工具 or <code>security</code> 命令</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>详细说明</h2>
+
+    <h3>Windows</h3>
+    <ul>
+        <li><strong>自动安装（mkcert）</strong>：
+            <pre><code>mkcert -install</code></pre>
+            会自动使用 <code>certutil</code> 安装到系统信任证书库。
+        </li>
+        <li><strong>手动路径（MMC 控制台）</strong>：
+            <ul>
+                <li>Win + R → <code>mmc</code></li>
+                <li>添加管理单元：证书 → 计算机帐户</li>
+                <li>导入到 “受信任的根证书颁发机构” 中</li>
+            </ul>
+        </li>
+        <li><strong>命令行安装</strong>：
+            <pre><code>certutil -addstore -f "Root" rootCA.pem</code></pre>
+        </li>
+    </ul>
+
+    <h3>CentOS / RHEL</h3>
+    <pre><code>sudo cp rootCA.pem /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust</code></pre>
+
+    <h3>Ubuntu / Debian</h3>
+    <pre><code>sudo cp rootCA.pem /usr/local/share/ca-certificates/my-root.crt
+sudo update-ca-certificates</code></pre>
+    <p>✅ 注意文件扩展名要是 <code>.crt</code></p>
+
+    <h3>Arch / Manjaro</h3>
+    <pre><code>sudo cp rootCA.pem /etc/ca-certificates/trust-source/anchors/
+sudo trust extract-compat</code></pre>
+
+    <h3>macOS</h3>
+    <ul>
+        <li><strong>自动安装（mkcert）</strong>：
+            <pre><code>mkcert -install</code></pre>
+        </li>
+        <li><strong>手动安装（图形界面）</strong>：
+            <ul>
+                <li>打开“钥匙串访问”</li>
+                <li>拖拽 <code>rootCA.pem</code> 到 “系统” 或 “登录” 钥匙串</li>
+                <li>双击 → 设置为“始终信任”</li>
+            </ul>
+        </li>
+        <li><strong>命令行方式</strong>：
+            <pre><code>sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain rootCA.pem</code></pre>
+        </li>
+    </ul>
+
+    <h2>小提示</h2>
+    <ul>
+        <li>安装完后，<strong>重启浏览器</strong> 或某些守护进程（如 <code>curl</code>/<code>wget</code>）才会识别新证书；</li>
+        <li>建议将根证书保存在服务端，比如 <code>/certs/rootCA.pem</code>，客户端可下载后执行导入脚本；</li>
+    </ul>
+</body>
+</html>
