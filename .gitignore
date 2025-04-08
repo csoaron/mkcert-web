@@ -39,3 +39,4 @@ _templates
 *.mo
 
 # pem
+mkcert-ca/*.pem
