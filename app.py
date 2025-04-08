@@ -90,6 +90,10 @@ def delete_cert(domain: str = Form(...)):
     return RedirectResponse(url="/", status_code=303)
 
 
+@app.get("/instructions", response_class=HTMLResponse)
+def root_cert_instructions(request: Request):
+    return templates.TemplateResponse("root_cert_instructions.html", {"request": request})
+
 def get_cert_info(cert_path: Path):
     try:
         with open(cert_path, "rb") as f:
