@@ -38,5 +38,3 @@ _templates
 .DS_Store
 *.mo
 
-# pem
-mkcert-ca/*.pem
